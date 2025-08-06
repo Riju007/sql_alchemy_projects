@@ -10,7 +10,7 @@ import os
 from sqlalchemy import URL
 from app.db import Base
 from dotenv import load_dotenv
-
+from app.models import User, Company  # noqa
 ENV_FILE_PATH: str = ".dev.env"
 
 load_dotenv(ENV_FILE_PATH)
