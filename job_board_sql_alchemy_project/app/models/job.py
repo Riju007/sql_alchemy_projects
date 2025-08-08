@@ -19,4 +19,3 @@ class JobPost(Base, TimestampMixin, ActiveFlagMixin):
     def __str__(self):
         obj_str = f"{self.title} at {self.company.name} ({self.location})"
         return obj_str
-
