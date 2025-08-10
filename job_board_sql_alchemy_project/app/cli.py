@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 from app.db import SessionLocal
 from app.models import JobPost, Application
 
@@ -52,6 +53,27 @@ def jobs_by_company(company_id: int):
     for job in jobs:
         table.add_row(str(job.id), job.title)
     console.print(table)
+
+
+@jobs_app.command("job-count-company")
+def job_per_company():
+    """Job per company."""
+    db: Session = next(get_db())
+    job_per_company = func.count().label("job_per_company")
+    statement = (
+        select(job_per_company)
+        .select_from(JobPost)
+        .group_by(JobPost.company_id)
+        .order_by(job_per_company.desc())
+    )
+    job_count_list = db.execute(statement).all()
+    table = Table(title="Job Count by company")
+    table.add_column("Index", style="red")
+    table.add_column("Job Count", style="green")
+    for index, job_count in enumerate(job_count_list, 1):
+        table.add_row(str(index), str(job_count[0]))
+    console.print(table)
+    return job_count_list
 
 
 applications_app = typer.Typer(help="Manage Applications")
