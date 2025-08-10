@@ -4,7 +4,7 @@ from rich.table import Table
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from app.db import SessionLocal
-from app.models import JobPost, Application
+from app.models import JobPost, Application, Company
 
 app = typer.Typer(help="Job Board ClI")
 console = Console()
@@ -56,22 +56,34 @@ def jobs_by_company(company_id: int):
 
 
 @jobs_app.command("job-count-company")
-def job_per_company():
+def job_per_company(limit: int = typer.Option(None, help="Limit the number of companies shown")):
     """Job per company."""
     db: Session = next(get_db())
-    job_per_company = func.count().label("job_per_company")
+    job_count = func.count(JobPost.id).label("job_count")
     statement = (
-        select(job_per_company)
-        .select_from(JobPost)
-        .group_by(JobPost.company_id)
-        .order_by(job_per_company.desc())
+        select(Company.name, job_count)
+        .join(JobPost, Company.id == JobPost.company_id)
+        .group_by(Company.id, Company.name)
+        .order_by(job_count.desc())
     )
+    if limit:
+        statement = statement.limit(limit)
     job_count_list = db.execute(statement).all()
+
+    # calculate total jobs
+    total_jobs = sum(count for _, count in job_count_list)
     table = Table(title="Job Count by company")
     table.add_column("Index", style="red")
+    table.add_column("Company Name", style="cyan")
     table.add_column("Job Count", style="green")
-    for index, job_count in enumerate(job_count_list, 1):
-        table.add_row(str(index), str(job_count[0]))
+    for index, (company_name, count) in enumerate(job_count_list, 1):
+        table.add_row(str(index), company_name, str(count))
+
+    # add summary row
+    table.add_section()
+    table.add_row(
+        "", "[bold yellow]Total[/bold yellow]", f"[bold green]{total_jobs}[/bold green]"
+    )
     console.print(table)
     return job_count_list
 
