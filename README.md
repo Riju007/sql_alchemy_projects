@@ -1,2 +1,3 @@
 # sql_alchemy_projects
-real world SQLAlchemy simulated porject
+1. Job Board SQLAlchemy Project 
+2. Museum SQLAlchemy Project
