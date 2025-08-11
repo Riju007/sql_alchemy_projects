@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from app.db import SessionLocal
 from app.models import JobPost, Application, Company
+from app.managers import JobManger
+
 
 app = typer.Typer(help="Job Board ClI")
 console = Console()
@@ -56,7 +58,9 @@ def jobs_by_company(company_id: int):
 
 
 @jobs_app.command("job-count-company")
-def job_per_company(limit: int = typer.Option(None, help="Limit the number of companies shown")):
+def job_per_company(
+    limit: int = typer.Option(None, help="Limit the number of companies shown")
+):
     """Job per company."""
     db: Session = next(get_db())
     job_count = func.count(JobPost.id).label("job_count")
@@ -86,6 +90,17 @@ def job_per_company(limit: int = typer.Option(None, help="Limit the number of co
     )
     console.print(table)
     return job_count_list
+
+
+@jobs_app.command("add-job", help="Add a new job")
+def add_job_via_cli(
+    title: str, description: str, company_id: int, location: str | None = None
+):
+    """Add a job post via cli."""
+    db = next(get_db())
+    manager = JobManger(db)
+    job = manager.post_job(title, description, company_id, location)
+    console.print(f"[green]Job Created:[/green] {job.title} (ID: {job.id})")
 
 
 applications_app = typer.Typer(help="Manage Applications")
