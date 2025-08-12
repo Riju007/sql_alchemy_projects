@@ -1,0 +1,25 @@
+museum_tracker/
+├─ src/museum_tracker/
+│  ├─ __init__.py
+│  ├─ db/
+│  │  ├─ __init__.py
+│  │  ├─ base.py          # DeclarativeBase + mixins
+│  │  ├─ session.py       # engine/session factory
+│  ├─ models/
+│  │  ├─ __init__.py
+│  │  ├─ artist.py
+│  │  ├─ artwork.py
+│  │  ├─ institution.py
+│  │  ├─ loan.py
+│  ├─ cli.py              # Typer CLI stub
+├─ tests/
+│  ├─ __init__.py
+│  ├─ test_basic.py
+├─ alembic/
+│  ├─ env.py
+│  ├─ script.py.mako
+├─ .env.example
+├─ requirements.txt
+├─ docker-compose.yml
+├─ Dockerfile
+└─ README.md
